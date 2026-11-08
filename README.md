@@ -1,3 +1,12 @@
+### Бизнес-контекст и требования
+
+Интеграция финансовых транзакций из монолитной банковской системы (Oracle) в современный контур требует жесткого соблюдения SLA по времени отклика (p95 < 200ms) и исключения дублирования проводок при сбоях сети.
+
+### Архитектура решения
+
+CDC-агент мониторит redo/archived логи Oracle, формирует поток событий и передает их в шину данных / напрямую в микросервис интеграции. Микросервис предоставляет стандартизированный REST API с защитой от дубликатов (Idempotency Key).
+
+```plantuml
 @startuml
 skinparam backgroundColor #FFFFFF
 skinparam defaultTextAlignment center
@@ -25,3 +34,6 @@ end
 Oracle -> Service: CDC Event (Изменение в таблице)
 Service -> Service: Обработка с Exponential Backoff\n(при сбоях сети)
 @enduml
+```
+
+TransactionPayload.js
